@@ -1,0 +1,16 @@
+<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- 蓝色圆形 -->
+  <circle cx="100" cy="100" r="15" fill="black">
+    <animate attributeName="r" values="15;35;15" dur="2s" repeatCount="indefinite" begin="0s"/>
+  </circle>
+  
+  <!-- 红色圆形 -->
+  <circle cx="200" cy="100" r="15" fill="black">
+    <animate attributeName="r" values="15;35;15" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+  </circle>
+  
+  <!-- 绿色圆形 -->
+  <circle cx="300" cy="100" r="15" fill="black">
+    <animate attributeName="r" values="15;35;15" dur="2s" repeatCount="indefinite" begin="1s"/>
+  </circle>
+</svg>

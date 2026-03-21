@@ -1,0 +1,36 @@
+# Robots.txt for Girls Rating
+# https://girls-rating.com
+
+User-agent: *
+Allow: /
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Host
+Host: https://girls-rating.com
+
+# Sitemap location
+Sitemap: https://girls-rating.com/sitemap.xml
+
+# Disallow admin/private paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*.json$
+
+# Allow all search engines to index the main content
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Yandex
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
