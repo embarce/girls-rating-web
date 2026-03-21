@@ -35,7 +35,6 @@ interface CosplayImage {
 }
 
 const API_BASE_URL = '/api';
-const IMAGE_BASE_URL = '/images';
 
 const CATEGORIES = ['hot', 'latest', 'qa', 'funny'] as const;
 type Category = typeof CATEGORIES[number];
@@ -427,7 +426,7 @@ const Header = ({ activeCategory, onCategoryChange, onOpenQA, onOpenFunny, lang,
 };
 
 const ImageCard = ({ image, onClick }: { image: CosplayImage; onClick: () => void }) => {
-  const imageUrl = image.resourceUrl.startsWith('http') ? image.resourceUrl : `${IMAGE_BASE_URL}/${image.resourceUrl}`;
+  const imageUrl = image.resourceUrl;
   
   return (
     <motion.article 
@@ -509,8 +508,8 @@ const ImageModal = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onNext, onPrev, onClose]);
 
-  const originalUrl = useMemo(() => 
-    image.resourceUrl.startsWith('http') ? image.resourceUrl : `${IMAGE_BASE_URL}/${image.resourceUrl}`
+  const originalUrl = useMemo(() =>
+    image.resourceUrl
   , [image.resourceUrl]);
 
   useEffect(() => {
@@ -746,7 +745,7 @@ const ImageModal = ({
                   return nextImages.map((img, i) => (
                     <div key={img.id || i} className="aspect-[3/4] rounded-lg bg-white/5 border border-white/5 overflow-hidden group cursor-pointer hover:border-[#FF2D55]/50 transition-colors">
                       <img
-                        src={img.resourceUrl.startsWith('http') ? img.resourceUrl : `${IMAGE_BASE_URL}/${img.resourceUrl}`}
+                        src={img.resourceUrl}
                         alt={`Next ${i + 1}`}
                         className="w-full h-full object-cover opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
                         referrerPolicy="no-referrer"
