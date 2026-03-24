@@ -559,7 +559,7 @@ const ImageModal = ({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60] bg-[#050505] flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[60] bg-[#050505] flex items-start md:items-center justify-center overflow-x-hidden overflow-y-auto md:overflow-hidden"
     >
       {/* Atmospheric Background */}
       <div className="absolute inset-0 z-0">
@@ -573,30 +573,30 @@ const ImageModal = ({
       {/* Close Button */}
       <button 
         onClick={onClose}
-        className="absolute top-6 right-6 z-[80] p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:rotate-90 active:scale-90"
+        className="absolute top-3 right-3 md:top-6 md:right-6 z-[80] p-2 md:p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all hover:rotate-90 active:scale-90"
       >
         <X className="w-6 h-6" />
       </button>
 
       {/* Navigation Buttons */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[70] flex justify-between px-4 md:px-12 pointer-events-none">
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-[70] flex justify-between px-2 sm:px-4 md:px-12 pointer-events-none">
         <button 
           onClick={onPrev}
-          className="p-4 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-[#FF2D55] hover:border-[#FF2D55] transition-all active:scale-90 pointer-events-auto group"
+          className="p-2 md:p-4 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-[#FF2D55] hover:border-[#FF2D55] transition-all active:scale-90 pointer-events-auto group"
         >
-          <ChevronLeft className="w-8 h-8 group-hover:scale-110 transition-transform" />
+          <ChevronLeft className="w-5 h-5 md:w-8 md:h-8 group-hover:scale-110 transition-transform" />
         </button>
         <button 
           onClick={onNext}
-          className="p-4 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-[#FF2D55] hover:border-[#FF2D55] transition-all active:scale-90 pointer-events-auto group"
+          className="p-2 md:p-4 rounded-full bg-black/40 backdrop-blur-md border border-white/10 hover:bg-[#FF2D55] hover:border-[#FF2D55] transition-all active:scale-90 pointer-events-auto group"
         >
-          <ChevronRight className="w-8 h-8 group-hover:scale-110 transition-transform" />
+          <ChevronRight className="w-5 h-5 md:w-8 md:h-8 group-hover:scale-110 transition-transform" />
         </button>
       </div>
 
-      <div className="relative z-10 w-full h-full flex flex-col md:flex-row max-w-[1800px] mx-auto overflow-hidden">
+      <div className="relative z-10 w-full min-h-full md:h-full flex flex-col md:flex-row max-w-[1800px] mx-auto overflow-visible md:overflow-hidden">
         {/* Main Image View */}
-        <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 group">
+        <div className="flex-1 relative flex items-center justify-center p-4 md:p-12 min-h-[45vh] md:min-h-0 group">
           <AnimatePresence mode="wait">
             <motion.div
               key={displayUrl}
@@ -609,7 +609,7 @@ const ImageModal = ({
               }}
               exit={{ opacity: 0, scale: 1.05, y: -20 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className={`relative max-w-full max-h-full shadow-[0_0_100px_rgba(0,0,0,0.5)] rounded-lg overflow-hidden ${isAnimated ? 'ring-4 ring-[#FF2D55] ring-offset-4 ring-offset-black' : ''}`}
+              className={`relative w-full h-[55vh] sm:h-[60vh] md:w-auto md:h-auto max-w-full md:max-h-full flex items-center justify-center shadow-[0_0_100px_rgba(0,0,0,0.5)] rounded-lg overflow-hidden ${isAnimated ? 'ring-4 ring-[#FF2D55] ring-offset-4 ring-offset-black' : ''}`}
             >
               {isProcessing && (
                 <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40">
@@ -622,7 +622,7 @@ const ImageModal = ({
                 src={displayUrl} 
                 alt={`Cosplay by ${image.author.name} - Full View`}
                 referrerPolicy="no-referrer"
-                className={`max-w-full max-h-[85vh] object-contain transition-all duration-1000 ${isAnimated ? 'scale-105 rotate-1' : ''}`}
+                className={`max-w-full max-h-full md:max-h-[85vh] object-contain transition-all duration-1000 ${isAnimated ? 'scale-105 rotate-1' : ''}`}
                 animate={isAnimated ? {
                   scale: [1.05, 1.08, 1.05],
                   rotate: [1, -1, 1],
@@ -631,7 +631,7 @@ const ImageModal = ({
               />
               
               {/* Quick Actions Overlay */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-6 px-8 py-4 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
+              <div className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 items-center gap-6 px-8 py-4 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 opacity-0 group-hover:opacity-100 transition-all translate-y-4 group-hover:translate-y-0">
                 <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] hover:text-[#FF2D55] transition-colors">
                   <Heart className="w-4 h-4" /> Like
                 </button>
@@ -652,9 +652,9 @@ const ImageModal = ({
         <motion.div 
           initial={{ x: 400, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
-          className="w-full md:w-[450px] h-full bg-black/40 backdrop-blur-3xl border-l border-white/10 flex flex-col"
+          className="w-full md:w-[450px] h-auto md:h-full bg-black/40 backdrop-blur-3xl border-t md:border-t-0 md:border-l border-white/10 flex flex-col"
         >
-          <div className="p-8 space-y-8 overflow-y-auto no-scrollbar flex-1">
+          <div className="p-4 md:p-8 space-y-6 md:space-y-8 overflow-y-visible md:overflow-y-auto no-scrollbar flex-1">
             {/* Header */}
             <div className="space-y-2">
               <motion.p 
@@ -669,7 +669,7 @@ const ImageModal = ({
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="text-5xl font-black tracking-tighter uppercase italic leading-none"
+                className="text-3xl md:text-5xl font-black tracking-tighter uppercase italic leading-none"
               >
                 {image.author.name}
               </motion.h2>
@@ -761,7 +761,7 @@ const ImageModal = ({
           </div>
 
           {/* Footer Actions */}
-          <div className="p-8 border-t border-white/10 bg-black/20">
+          <div className="p-4 md:p-8 border-t border-white/10 bg-black/20">
             <motion.button 
               onClick={handleMakeMove}
               disabled={isProcessing || isAnimated}
