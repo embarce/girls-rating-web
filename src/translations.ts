@@ -101,7 +101,11 @@ export const translations = {
         '• 不向第三方共享任何数据',
       ],
       commitment: '您的隐私对我们至关重要。',
-    }
+    },
+    footer: {
+      github: '在 GitHub 上查看',
+      star: '给个星星支持我们！',
+    },
   },
   en: {
     categories: {
@@ -174,6 +178,10 @@ export const translations = {
         '• No data shared with third parties',
       ],
       commitment: 'Your privacy is our top priority.',
+    },
+    footer: {
+      github: 'View on GitHub',
+      star: 'Give us a star!',
     },
     terms: {
       title: 'Terms of Service',

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Search, 
-  X, 
-  Heart, 
-  Download, 
-  Share2, 
-  Maximize2, 
+import {
+  Search,
+  X,
+  Heart,
+  Download,
+  Share2,
+  Maximize2,
   Eye,
   Lock,
   ChevronRight,
@@ -14,7 +14,8 @@ import {
   HelpCircle,
   Plus,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Github
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -1066,7 +1067,18 @@ export default function App() {
                   <p className="text-[10px] text-[#444] font-bold uppercase tracking-[0.3em]">{t.ageGate.subtitle}</p>
                 </div>
               </div>
-              <div className="flex gap-8">
+              <div className="flex items-center gap-6">
+                <a
+                  href="https://github.com/embarce/girls-rating-web"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-[#FF2D55]/50 hover:bg-[#FF2D55]/10 transition-all group"
+                >
+                  <Github className="w-4 h-4 text-[#FF2D55]" />
+                  <span className="text-[10px] font-bold text-[#444] group-hover:text-white uppercase tracking-widest transition-colors">{t.footer.github}</span>
+                  <span className="text-[10px] font-bold text-[#FF2D55] uppercase tracking-widest">★ {t.footer.star}</span>
+                </a>
+                <span className="text-[#222] hidden md:inline">•</span>
                 <button onClick={() => setIsTermsOpen(true)} className="text-[10px] font-bold text-[#444] hover:text-white uppercase tracking-widest transition-colors">Terms</button>
                 <button onClick={() => setIsPrivacyOpen(true)} className="text-[10px] font-bold text-[#444] hover:text-white uppercase tracking-widest transition-colors">Privacy</button>
                 <button onClick={() => setIsSupportOpen(true)} className="text-[10px] font-bold text-[#444] hover:text-white uppercase tracking-widest transition-colors">Support</button>
