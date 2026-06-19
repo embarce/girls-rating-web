@@ -7,6 +7,8 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
+RUN pnpm config set ignore-scripts false
+
 # ✅ 先拷贝 rc 文件（非常关键）
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
