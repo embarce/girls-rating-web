@@ -5,6 +5,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+RUN corepack enable \
+ && corepack prepare pnpm@11.2.2 --activate
+
 # ✅ 先拷贝 rc 文件（非常关键）
 COPY package.json pnpm-lock.yaml .npmrc ./
 
