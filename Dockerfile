@@ -16,6 +16,8 @@ RUN pnpm install --frozen-lockfile
 # 复制所有源代码
 COPY . .
 
+RUN pnpm approve-builds --all
+
 # 构建生产版本
 RUN pnpm build
 
