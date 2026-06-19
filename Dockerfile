@@ -3,13 +3,16 @@
 # ==============================
 FROM node:22-alpine AS builder
 
-# 启用 corepack 并使用 pnpm 11（版本可控）
-RUN corepack enable && corepack prepare pnpm@11.2.2 --activate
-
 WORKDIR /app
 
 # ✅ 先拷贝 rc 文件（非常关键）
-COPY .npmrc package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml .npmrc ./
+
+RUN pnpm -v
+
+RUN cat .npmrc
+
+RUN pnpm config get onlyBuiltDependencies
 
 # 安装依赖（不会报 ERR_PNPM_IGNORED_BUILDS）
 RUN pnpm install --frozen-lockfile

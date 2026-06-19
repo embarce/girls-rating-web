@@ -42,6 +42,10 @@
       "@swc/core",
       "rollup",
       "vite"
+    ],
+    "ignoredBuiltDependencies": [
+      "esbuild",
+      "protobufjs"
     ]
   }
 }
