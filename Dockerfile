@@ -8,11 +8,9 @@ WORKDIR /app
 RUN npm install -g pnpm
 
 # ✅ 先拷贝 rc 文件（非常关键）
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm -v
-
-RUN cat .npmrc
 
 RUN pnpm config get onlyBuiltDependencies
 
