@@ -17,7 +17,12 @@ RUN pnpm -v
 RUN pnpm config get onlyBuiltDependencies
 
 # 安装依赖（不会报 ERR_PNPM_IGNORED_BUILDS）
-RUN pnpm install --frozen-lockfile --ignore-scripts=false
+RUN pnpm install --frozen-lockfile --ignore-scripts
+RUN pnpm approve-builds --package esbuild
+RUN pnpm approve-builds --package @google/genai
+RUN pnpm approve-builds --package protobufjs
+
+RUN pnpm install
 
 # 拷贝源码
 COPY . .
