@@ -1,34 +1,34 @@
-# 多阶段构建 - 第一阶段：构建 React 应用
+# ==============================
+# 第一阶段：构建 React / Vite 应用
+# ==============================
 FROM node:22-alpine AS builder
 
-# 设置工作目录
+# 启用 corepack 并使用 pnpm 11（版本可控）
+RUN corepack enable && corepack prepare pnpm@11.2.2 --activate
+
 WORKDIR /app
 
-# 安装 pnpm
-RUN npm install -g pnpm
+# ✅ 先拷贝 rc 文件（非常关键）
+COPY .npmrc package.json pnpm-lock.yaml* ./
 
-# 复制 package.json 和 pnpm-lock.yaml（如果存在）
-COPY package.json pnpm-lock.yaml* ./
-
-# 安装依赖
+# 安装依赖（不会报 ERR_PNPM_IGNORED_BUILDS）
 RUN pnpm install --frozen-lockfile
 
-RUN pnpm approve-builds --all
-
-# 复制所有源代码
+# 拷贝源码
 COPY . .
-
 
 # 构建生产版本
 RUN pnpm build
 
-# 第二阶段：使用 nginx 运行
+# ==============================
+# 第二阶段：运行环境
+# ==============================
 FROM nginx:alpine
 
-# 从构建阶段复制构建产物到 nginx 目录
+# 从构建阶段复制静态资源
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 暴露 80 端口
+# 暴露端口
 EXPOSE 80
 
 # 启动 nginx
