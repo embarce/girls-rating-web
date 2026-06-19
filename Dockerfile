@@ -7,6 +7,8 @@ WORKDIR /app
 # 安装 pnpm
 RUN npm install -g pnpm
 
+RUN pnpm approve-builds --all
+
 # 复制 package.json 和 pnpm-lock.yaml（如果存在）
 COPY package.json pnpm-lock.yaml* ./
 
@@ -16,7 +18,6 @@ RUN pnpm install --frozen-lockfile
 # 复制所有源代码
 COPY . .
 
-RUN pnpm approve-builds --all
 
 # 构建生产版本
 RUN pnpm build
