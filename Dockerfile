@@ -17,7 +17,7 @@ RUN pnpm -v
 RUN pnpm config get onlyBuiltDependencies
 
 # 安装依赖（不会报 ERR_PNPM_IGNORED_BUILDS）
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --ignore-scripts=false
 
 # 拷贝源码
 COPY . .
