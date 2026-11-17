@@ -93,7 +93,13 @@ APP_URL=your_app_url
 
 ## API 配置
 
-开发模式下，Vite 已配置代理将 `/api` 请求转发到 `http://localhost:8080/api`。
+开发模式下，Vite 会把 `/api` 代理到 `http://localhost:8080`。
+
+没有本地后端时，可以在 `.env.local` 里临时指向线上（不必改代码）：
+
+```bash
+API_PROXY_TARGET=https://www.girls-rating.com
+```
 
 ### 后端接口
 

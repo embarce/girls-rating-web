@@ -54,7 +54,7 @@ public/               # 静态资源；images/cosplay 下是本地示例图（�
 
 ## 数据与 API
 
-`vite.config.ts` 开发代理：`/api` → `http://localhost:8080`（`changeOrigin: true`）。生产由 nginx/网关负责，前端不含后端代码。
+`vite.config.ts` 开发代理：`/api` → `API_PROXY_TARGET`，默认 `http://localhost:8080`（`changeOrigin: true`）。没有本地后端时用 `.env.local` 指向线上即可，**不要在配置里写死生产域名**。生产由 nginx/网关负责，前端不含后端代码。
 
 ```ts
 const API_BASE_URL = '/api';
