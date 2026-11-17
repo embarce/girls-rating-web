@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  wealth-pulse-web:
+    image: crpi-t2kd27inhho4u8yc.cn-hongkong.personal.cr.aliyuncs.com/litchi-colorful/wealth-pulse-web:9dbe93a6-2026-03-18-22-05-49
+    container_name: wealth-pulse-web
+    restart: unless-stopped
+    ports:
+      - "82:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
