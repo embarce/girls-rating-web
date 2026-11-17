@@ -1,55 +1,63 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="googlebot" content="index, follow, max-image-preview:large" />
-    <meta name="bingbot" content="index, follow" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+    <!-- 索引策略：允许大图预览，给足摘要长度 -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
 
     <!-- Primary Meta Tags -->
-    <title>Girls Rating | Curated Cosplay Photography Gallery</title>
-    <meta name="title" content="Girls Rating | Curated Cosplay Photography Gallery" />
-    <meta name="description" content="Girls Rating is a curated gallery of high-quality cosplay photography. Daily updates of hot and latest cosplay collections from top artists worldwide. Free, private, and secure browsing experience." />
-    <meta name="keywords" content="cosplay, cosplay photography, cosplay gallery, hot cosplay, latest cosplay, anime cosplay, manga cosplay, game cosplay, fantasy cosplay, premium cosplay, 4K cosplay, high quality cosplay, cosplay artist, cosplay collection, free cosplay, cosplay vault, girls rating, cosplay gallery online, best cosplay pictures, cosplay downloads" />
+    <title>Girls Rating｜精选 Cosplay 摄影图库 · 每日更新</title>
+    <meta
+      name="description"
+      content="精选 Cosplay 摄影图库，人工策展，每日更新热门与最新作品，免费浏览无需注册。A curated cosplay photography gallery, updated daily."
+    />
+    <meta name="keywords" content="cosplay, cosplay photography, cosplay gallery, cosplay 图库, 精选写真" />
     <meta name="author" content="Girls Rating Group" />
     <meta name="publisher" content="Girls Rating Group" />
     <meta name="copyright" content="Girls Rating Group" />
-    <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://girls-rating.com/" />
 
-    <!-- Open Graph / Facebook -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://girls-rating.com/" />
     <meta property="og:site_name" content="Girls Rating" />
-    <meta property="og:title" content="Girls Rating | Premium Curated Cosplay Gallery" />
-    <meta property="og:description" content="Explore a high-fidelity, curated collection of artistic cosplay photography. From Cyberpunk to Fantasy, discover the finest details in a private, secure vault." />
+    <meta property="og:title" content="Girls Rating｜精选 Cosplay 摄影图库" />
+    <meta
+      property="og:description"
+      content="人工策展的 Cosplay 摄影图库，每日更新。Curated cosplay photography, updated daily."
+    />
     <meta property="og:image" content="https://girls-rating.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="zh_CN" />
+    <meta property="og:image:alt" content="Girls Rating — 精选 Cosplay 摄影图库" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:locale:alternate" content="en_US" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://girls-rating.com/" />
-    <meta property="twitter:site" content="@girlsrating" />
-    <meta property="twitter:creator" content="@girlsrating" />
-    <meta property="twitter:title" content="Girls Rating | Premium Curated Cosplay Gallery" />
-    <meta property="twitter:description" content="Explore a high-fidelity, curated collection of artistic cosplay photography. From Cyberpunk to Fantasy, discover the finest details in a private, secure vault." />
-    <meta property="twitter:image" content="https://girls-rating.com/og-image.jpg" />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://girls-rating.com/" />
+    <meta name="twitter:site" content="@girlsrating" />
+    <meta name="twitter:creator" content="@girlsrating" />
+    <meta name="twitter:title" content="Girls Rating｜精选 Cosplay 摄影图库" />
+    <meta name="twitter:description" content="人工策展的 Cosplay 摄影图库，每日更新。Curated cosplay photography, updated daily." />
+    <meta name="twitter:image" content="https://girls-rating.com/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Girls Rating — 精选 Cosplay 摄影图库" />
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#050505" />
-    <meta name="msapplication-TileColor" content="#FF2D55" />
+    <!-- Theme -->
+    <meta name="theme-color" content="#0a0908" />
+    <meta name="msapplication-TileColor" content="#0a0908" />
 
-    <!-- Favicon -->
+    <!-- Icons -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
 
-    <!-- Preconnect to external domains -->
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
@@ -67,83 +75,102 @@
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5878954173858501" crossorigin="anonymous"></script>
 
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD：用 @graph 串成一张图，避免多个孤立实体互相矛盾 -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "Girls Rating",
-        "alternateName": "Girls Rating Cosplay Gallery",
-        "url": "https://girls-rating.com",
-        "description": "Curated gallery of high-quality cosplay photography with daily updates",
-        "publisher": {
-          "@type": "Organization",
-          "name": "Girls Rating Group",
-          "url": "https://girls-rating.com",
-          "logo": {
-            "@type": "ImageObject",
-            "url": "https://girls-rating.com/images/logo.png"
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://girls-rating.com/#website",
+            "url": "https://girls-rating.com/",
+            "name": "Girls Rating",
+            "alternateName": "Girls Rating Cosplay Gallery",
+            "description": "精选 Cosplay 摄影图库，每日更新，人工策展。",
+            "publisher": { "@id": "https://girls-rating.com/#organization" },
+            "inLanguage": "zh-CN"
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://girls-rating.com/#organization",
+            "name": "Girls Rating Group",
+            "url": "https://girls-rating.com/",
+            "email": "support@girls-rating.com",
+            "foundingDate": "2024",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://girls-rating.com/images/logo.png",
+              "width": 160,
+              "height": 164
+            }
+          },
+          {
+            "@type": "WebPage",
+            "@id": "https://girls-rating.com/#webpage",
+            "url": "https://girls-rating.com/",
+            "name": "Girls Rating｜精选 Cosplay 摄影图库",
+            "isPartOf": { "@id": "https://girls-rating.com/#website" },
+            "about": { "@id": "https://girls-rating.com/#gallery" },
+            "primaryImageOfPage": {
+              "@type": "ImageObject",
+              "url": "https://girls-rating.com/og-image.jpg",
+              "width": 1200,
+              "height": 630
+            },
+            "inLanguage": "zh-CN",
+            "contentRating": "18+"
+          },
+          {
+            "@type": "ImageGallery",
+            "@id": "https://girls-rating.com/#gallery",
+            "name": "Girls Rating Cosplay Gallery",
+            "url": "https://girls-rating.com/",
+            "description": "收录全球 Cosplayer 与摄影师的 Cosplay 作品，按热门精选与最新上架两个展区陈列。",
+            "image": {
+              "@type": "ImageObject",
+              "url": "https://girls-rating.com/og-image.jpg",
+              "width": 1200,
+              "height": 630
+            },
+            "author": { "@id": "https://girls-rating.com/#organization" },
+            "genre": "Cosplay Photography",
+            "accessMode": "visual",
+            "contentRating": "18+",
+            "inLanguage": "zh-CN"
           }
-        },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://girls-rating.com/?search={search_term_string}",
-          "query-input": "required name=search_term_string"
-        },
-        "inLanguage": ["en", "zh-CN"],
-        "genre": "Cosplay Photography",
-        "keywords": "cosplay, photography, gallery, anime, manga, game cosplay"
-      }
-    </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ImageGallery",
-        "name": "Girls Rating Cosplay Gallery",
-        "description": "Daily updates of cosplay photos, best quality, collected from the global internet",
-        "url": "https://girls-rating.com",
-        "image": {
-          "@type": "ImageObject",
-          "url": "https://girls-rating.com/og-image.jpg",
-          "width": 1200,
-          "height": 630
-        },
-        "author": {
-          "@type": "Organization",
-          "name": "Girls Rating Group"
-        },
-        "genre": "Cosplay Photography",
-        "accessMode": "visual",
-        "accessibilityFeature": "alternative text for images",
-        "contentRating": "18+",
-        "inLanguage": ["en", "zh-CN"]
-      }
-    </script>
-
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Girls Rating Group",
-        "url": "https://girls-rating.com",
-        "logo": "https://girls-rating.com/images/logo.png",
-        "description": "Curated cosplay photography gallery with daily updates",
-        "foundingDate": "2024",
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "contactType": "customer support",
-          "email": "support@girls-rating.com"
-        },
-        "sameAs": [
-          "https://twitter.com/girlsrating",
-          "https://www.instagram.com/girlsrating"
         ]
       }
     </script>
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- 无 JS 时的回退内容：爬虫与极少数关闭脚本的访客都能读到真实文本 -->
+    <noscript>
+      <div
+        style="max-width:720px;margin:0 auto;padding:56px 24px;font-family:-apple-system,'PingFang SC',sans-serif;color:#ece8e1;background:#0a0908;line-height:1.9"
+      >
+        <p style="font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:#ff2d55">Curated Cosplay Archive</p>
+        <h1 style="font-size:40px;line-height:1.15;margin:16px 0 8px">Girls Rating</h1>
+        <p style="color:#8b857b;margin-bottom:28px">精选 Cosplay 摄影图库 · 每日更新 · 免费浏览</p>
+        <p>
+          Girls Rating 收录全球 Cosplayer 与摄影师的 Cosplay 作品，按「热门精选」与「最新上架」两个展区陈列。
+          每一张进入档案的图片都由人工过目，按完成度与作者表达筛选；没有付费置顶，也没有插入式推广。
+        </p>
+        <p style="margin-top:16px">
+          浏览不需要注册，所有功能免费。站点含成人向内容，需年满 18 周岁方可进入。站内图片均来源于公开互联网，
+          版权归原作者所有，如作者希望移除请联系
+          <a href="mailto:support@girls-rating.com" style="color:#ece8e1">support@girls-rating.com</a>。
+        </p>
+        <p style="margin-top:16px;color:#8b857b">
+          本站需要启用 JavaScript 才能浏览图库。你也可以看看我们的其他站点：
+          <a href="https://luck.girls-rating.com" style="color:#ece8e1">Luck</a> ·
+          <a href="https://cat.girls-rating.com" style="color:#ece8e1">Cat</a> ·
+          <a href="https://worthjob.girls-rating.com" style="color:#ece8e1">Worth Job</a>
+        </p>
+      </div>
+    </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

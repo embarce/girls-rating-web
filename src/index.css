@@ -1,74 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", "Songti SC", "Noto Serif SC", Georgia, serif;
+
+  --color-canvas: #0a0908;
+  --color-surface: #141210;
+  --color-bone: #ece8e1;
+  --color-dim: #8b857b;
+  --color-line: #262320;
+  --color-accent: #ff2d55;
 }
 
 :root {
-  --bg-vault: #050505;
-  --card-vault: #0F0F10;
-  --accent-vault: #FF2D55; /* Electric Pink/Red */
-  --text-dim: #888888;
+  color-scheme: dark;
+}
+
+html {
+  background-color: var(--color-canvas);
 }
 
 body {
-  background-color: var(--bg-vault);
-  color: #FFFFFF;
+  background-color: var(--color-canvas);
+  color: var(--color-bone);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-.vault-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
+::selection {
+  background: var(--color-accent);
+  color: #fff;
 }
 
-.vault-card {
-  background: var(--card-vault);
-  border-radius: 8px;
+/* 展签式小标签：10px / 大字距 / 全大写 */
+.label {
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* 全站极轻的纸面颗粒，让纯黑不那么"屏幕" */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.028;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='140' height='140' filter='url(%23n)'/></svg>");
+}
+
+/* 图片加载前的骨架 */
+.skeleton {
+  position: relative;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: #17140f;
 }
 
-.vault-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(236, 232, 225, 0.045), transparent);
+  animation: shimmer 1.7s infinite;
 }
 
-.glass-vault {
-  background: rgba(15, 15, 16, 0.7);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
-.accent-glow {
-  box-shadow: 0 0 15px var(--accent-vault);
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Custom Scrollbar */
+.reveal {
+  animation: fadeUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* 细滚动条 */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: var(--bg-vault);
+  background: var(--color-canvas);
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #222;
-  border-radius: 3px;
+  background: #2a2622;
+  border-radius: 0;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-vault);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-vault-in {
-  animation: fadeIn 0.5s ease forwards;
+  background: #3d3833;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -78,4 +117,11 @@ body {
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .skeleton::after {
+    animation: none;
+  }
 }

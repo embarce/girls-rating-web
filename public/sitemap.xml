@@ -1,49 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Homepage -->
+<!--
+  只列真实存在的 URL：站点是单页应用，没有独立路由，
+  ?category=hot / ?category=latest 会被忽略并渲染同一个首页，属于重复内容，不要提交。
+  热门/最新内容通过首页自身更新，lastmod 随之变化。
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://girls-rating.com/</loc>
-    <lastmod>2026-03-21</lastmod>
+    <lastmod>2026-11-17</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-  </url>
-
-  <!-- Hot Collection -->
-  <url>
-    <loc>https://girls-rating.com/?category=hot</loc>
-    <lastmod>2026-03-21</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Latest Collection -->
-  <url>
-    <loc>https://girls-rating.com/?category=latest</loc>
-    <lastmod>2026-03-21</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Funny Sub-sites -->
-  <url>
-    <loc>https://luck.girls-rating.com</loc>
-    <lastmod>2026-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://cat.girls-rating.com</loc>
-    <lastmod>2026-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
-    <loc>https://worthjob.girls-rating.com</loc>
-    <lastmod>2026-03-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
   </url>
 </urlset>
