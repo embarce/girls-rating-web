@@ -1,6 +1,6 @@
 # 抽卡（Gacha）功能设计文档
 
-> 状态：待评审 · v0.2（2026-11-17，按拍板决策修订：每日一抽 10 张 / 无保底 / 稀有度上传时定档 / 卡册页 / 每日弹窗）
+> 状态：已实现 · v1.0（2026-11-18，前后端均已落地；抽样/接口以后端 `girls-rating-api/docs/design/gacha-system.md` 为准）
 > 后端设计：`girls-rating-api/docs/design/gacha-system.md`（接口、表结构、抽样算法以后端文档为准）
 > 关联文件：`src/App.tsx`、`src/translations.ts`、`src/index.css`
 

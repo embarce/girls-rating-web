@@ -49,7 +49,7 @@ nginx.conf            # 生产 nginx 站点配置（gzip / 缓存 / SPA 回退 /
 public/               # 静态资源；images/cosplay 下是本地示例图（页面实际走 API）
 ```
 
-`App.tsx` 内部组件顺序：`AgeGate` → `AboutPage` → `QAModal` / `FunnyModal` / `SupportModal` / `PrivacyModal` / `TermsModal`（共用 `ModalShell` + `ModalHeader`）→ `Header` → `Masthead` → `SideRail`（`SideTool`）→ `GalleryCard` / `Gallery` / `GallerySkeleton` → `Lightbox` → `App`。
+`App.tsx` 内部组件顺序：`AgeGate` → `AboutPage` → `QAModal` / `FunnyModal` / `SupportModal` / `PrivacyModal` / `TermsModal`（共用 `ModalShell` + `ModalHeader`）→ `Header` → `Masthead` → `SideRail`（`SideTool`）→ `GalleryCard` / `Gallery` / `GallerySkeleton` → `Lightbox` → `ImmersiveSlide` / `ImmersiveFeed` → `FavoritesPage` → `AuthorPage` → `renderCardImage` / `shareCardImage` → `GachaCardBack` / `GachaCard` / `GachaGrid` / `GachaCollection` / `GachaPlayOverlay` / `GachaPromoModal` / `GachaPage` → `App`。
 新增弹窗请沿用此单文件模式，不要为此引入路由或状态库。
 
 ## 数据与 API
@@ -61,12 +61,16 @@ const API_BASE_URL = '/api';
 
 // 热门：每次请求返回随机一批，无分页
 GET /api/random  → { code: 200, data: CosplayImage[] }
-// 最新：分页
-GET /api/cosplay?page=1&pageSize=10
+// 最新：分页（author_id 可选，作者专区按作者过滤）
+GET /api/cosplay?page=1&pageSize=10&author_id=
                  → { code: 200, data: { list: CosplayImage[], totalPage: number, currPage: number } }
+// 抽卡（docs/gacha-design.md，匿名 X-Device-Id 请求头）
+POST /api/gacha/draw        → { code: 200, data: { date, replayed, cards, stats } }  // 幂等补发，无 409
+GET  /api/gacha/status      → { code: 200, data: { date, drawnToday, cards, probabilities, stats, pool } }
+GET  /api/gacha/collection  → { code: 200, data: { list, total, page, pageSize, stats, catalog } }
 ```
 
-统一约定：**只看 `code === 200`**，非 200 或抛错时清空列表并把页码重置为 0（不弹错误提示）。
+统一约定：**只看 `code === 200`**，非 200 或抛错时清空列表并把页码重置为 0（不弹错误提示）。抽卡接口失败走页内错误态/静默，不破坏画廊。
 
 ```ts
 interface CosplayImage {
@@ -76,9 +80,24 @@ interface CosplayImage {
   height: number;
   rating: number;
   views: string;         // 注意是字符串，如 "1.2k"
-  author: { name: string; avatar: string };
+  rarity?: 'R' | 'SR' | 'SSR';  // 上传时定档；缺失按 R 兜底
+  author: { id?: number; name: string; avatar: string };  // id 供作者专区跳转，缺失不可点
+}
+
+// 抽卡卡面 = 后端 PhotoResponse 形状
+interface GachaCardData {
+  resourceUrl: string;
+  width: number;
+  height: number;
+  rating: number;
+  views: string;
+  rarity: 'R' | 'SR' | 'SSR';
+  author: { id?: number; name: string; avatar: string };
+  drawDate?: string;     // 仅卡册展开时携带
 }
 ```
+
+本地存储：`gr-likes`（收藏 url 列表，点赞状态唯一权威）、`gr-like-details`（收藏快照 map，收藏夹页渲染用）、`gr-device-id`（UUID 设备标识）、`gr-gacha-popup-last`（每日弹窗去重，存服务端 date）、`gr-gacha-cache`（断网兜底快照）。
 
 ## 关键状态与易踩的坑
 
@@ -93,7 +112,7 @@ interface CosplayImage {
 
 ## i18n
 
-所有面向用户的文案必须同时加到 `translations.ts` 的 `zh` 和 `en` 两份对象中，键名保持对称（`ageGate / header / categories / main / card / modal / qa / funny / support / privacy / terms / footer`）。
+所有面向用户的文案必须同时加到 `translations.ts` 的 `zh` 和 `en` 两份对象中，键名保持对称（`ageGate / header / categories / main / card / modal / qa / funny / support / privacy / terms / gacha / footer`）。
 
 原先写死在组件里的中英文（`Exclusive Archive`、`Rating`/`Views`/`Tags`、`Like`/`Download`/`Share`、`没有更多图片了`）已全部收进 `translations.ts`，新增文案不要再写死在 JSX 里。
 
@@ -120,7 +139,8 @@ interface CosplayImage {
 </AnimatePresence>
 
 // 普通弹窗一律用 ModalShell + ModalHeader（遮罩 onClick=onClose，内容 stopPropagation）
-// 层级：SideRail z-40，Lightbox z-[60]，AboutPage z-[70]，AgeGate z-[100]，普通弹窗 z-[110]，toast z-[120]
+// 层级：SideRail z-40，Lightbox z-[60]，沉浸模式 z-[75]，AboutPage / 收藏夹 / 作者专区 z-[70]（Lightbox 之上靠 blocked 属性抑制下层 Esc），
+// GachaPage z-[80]（把玩态 z-[95]），AgeGate z-[100]，普通弹窗 z-[110]，toast z-[120]
 ```
 
 `Lightbox` 额外注册了全局 `keydown`：`ArrowLeft`/`ArrowRight` 切换（首尾循环）、`Escape` 先退出放大再关闭；打开时锁 `body` 滚动，并预加载相邻两张；移动端用 `drag="x"` 滑动切图（阈值 ±70px）。切换方向由 `App` 的 `direction` state 传入，`AnimatePresence` 的 variants 据此做左右滑入。

@@ -20,6 +20,9 @@ COPY . .
 # 构建期变量走 build-arg 注入，不把本地 .env 带进镜像
 ARG GEMINI_API_KEY=""
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
+# Cloudflare Turnstile 站点 key（注册/登录/邮件反馈的人机验证），VITE_ 前缀使其进入客户端 bundle
+ARG TURNSTILE_SITE_KEY=""
+ENV VITE_TURNSTILE_SITE_KEY=${TURNSTILE_SITE_KEY}
 
 RUN pnpm build
 

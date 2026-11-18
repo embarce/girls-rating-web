@@ -11,6 +11,7 @@
   --color-dim: #8b857b;
   --color-line: #262320;
   --color-accent: #ff2d55;
+  --color-gold: #e8c36a;
 }
 
 :root {
@@ -119,9 +120,132 @@ body {
   scrollbar-width: none;
 }
 
+/* --- Gacha 闪卡（每日抽卡） --- */
+
+/* 透视容器：卡体 tilt 的舞台 */
+.gacha-perspective {
+  perspective: 1000px;
+}
+
+/* 卡面/卡背：翻面时隐藏背面 */
+.gacha-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* SSR 全息箔片：彩虹 repeating + conic 高光，color-dodge 叠进图片。
+   强度由 --foil-opacity 驱动（指针倾斜时升高） */
+.gacha-foil {
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 45, 85, 0.4) 0 8%,
+      rgba(232, 195, 106, 0.4) 8% 16%,
+      rgba(124, 212, 253, 0.4) 16% 24%,
+      rgba(183, 134, 251, 0.4) 24% 32%,
+      rgba(255, 45, 85, 0.4) 32% 40%
+    ),
+    conic-gradient(from 45deg, transparent 0 70%, rgba(255, 255, 255, 0.67) 85%, transparent 100%);
+  mix-blend-mode: color-dodge;
+  opacity: var(--foil-opacity, 0.5);
+}
+
+/* SR 白炽渐变：比 SSR 克制，只有一道斜向白光 */
+.gacha-foil-sr {
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.5) 48%, transparent 62%);
+  mix-blend-mode: color-dodge;
+  opacity: var(--foil-opacity, 0.12);
+}
+
+/* 指针高光（R/SR/SSR 都有），位置由 --gx/--gy 驱动 */
+.gacha-glare {
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 42%), rgba(255, 255, 255, 0.2), transparent 55%);
+}
+
+/* 卡背：暖黑 + 竖细纹（品牌调性内的「卡面」质感） */
+.gacha-card-back {
+  background:
+    repeating-linear-gradient(90deg, rgba(236, 232, 225, 0.05) 0 1px, transparent 1px 7px),
+    radial-gradient(120% 100% at 50% 0%, #1c1714 0%, #0a0908 60%);
+}
+
+@keyframes shine-sweep {
+  0% {
+    transform: translateX(-160%) skewX(-14deg);
+  }
+  100% {
+    transform: translateX(260%) skewX(-14deg);
+  }
+}
+
+/* 翻面后的白炽扫光（SR/SSR），只跑一次 */
+.gacha-shine {
+  animation: shine-sweep 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes aura-pulse {
+  0%,
+  100% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+/* SSR 翻面前的 accent 光晕脉冲（2 次） */
+.gacha-aura {
+  animation: aura-pulse 0.7s ease-in-out 2;
+}
+
+@keyframes idle-sway {
+  0%,
+  100% {
+    transform: rotateY(-4deg) rotateX(2deg);
+  }
+  50% {
+    transform: rotateY(4deg) rotateX(-2deg);
+  }
+}
+
+/* 无指针输入时的缓慢待机摆动 */
+.gacha-idle {
+  animation: idle-sway 6s ease-in-out infinite;
+}
+
+/* 沉浸模式双击点赞：心形爆裂 */
+@keyframes heart-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08) translateY(-12px);
+  }
+}
+
+.immersive-burst {
+  animation: heart-burst 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .skeleton::after {
+  .skeleton::after,
+  .gacha-shine,
+  .gacha-aura,
+  .gacha-idle,
+  .immersive-burst {
     animation: none;
   }
 }
