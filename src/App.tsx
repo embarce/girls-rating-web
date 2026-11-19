@@ -337,16 +337,135 @@ const ModalFooterButton = ({ onClick, children }: { onClick: () => void; childre
 
 // --- Age Gate ---
 
-const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
+/**
+ * 入口页背景：不用另铺一张图墙，直接对年龄门后面已经挂载好的主页做高斯模糊。
+ * 「进入」时不是淡出，而是把模糊半径 34px → 0 拉回来（见 index.css 的 .gate-veil），
+ * 等于镜头对上焦：墙先变清楚，压暗的遮罩再退，最后主页才「到」。
+ * 注意 backdrop-filter 必须挂在这个元素本身：若挂子元素，父级 opacity < 1 会建立
+ * 新的 backdrop root，模糊会在淡出瞬间整个消失。
+ */
+const AgeGateBackdrop = ({ opening }: { opening: boolean }) => (
+  <div className="gate-veil pointer-events-none fixed inset-0 z-[99]" data-open={opening} aria-hidden>
+    <div className="gate-scrim absolute inset-0 bg-canvas/40">
+      {/* 左侧压一层斜向渐隐：文案区站得住，右侧海报区留出更多「墙」的亮度 */}
+      <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(10,9,8,0.78)_0%,rgba(10,9,8,0.5)_34%,rgba(10,9,8,0.12)_70%,transparent_100%)]" />
+      {/* 四角压深、中间留亮，让模糊的展墙还能读出「一片片照片」的层次 */}
+      <div className="absolute inset-0 bg-[radial-gradient(125%_105%_at_50%_38%,transparent_0%,rgba(10,9,8,0.42)_58%,rgba(10,9,8,0.88)_100%)]" />
+    </div>
+  </div>
+);
+
+/**
+ * 入口右栏：一张「入场券」。
+ * 用票根的印刷语言（四角裁切标记 / 票头 / 票面大字 / 竖向虚线撕口 / 条形码）替掉原来的同心圆光圈——
+ * 圆圈读起来像唱片或仪表盘，和「编辑式画廊」的展签体系无关；票根则天然对应「这是一道门」。
+ * 这栏实际是横版（约 1.17:1），所以按「主券 + 撕口 + 票根」左右分栏，而不是上下堆叠。
+ * 条码用 flexGrow 撑满宽度，只做疏密、不写死像素。
+ */
+const TICKET_BARS = [3, 1, 2, 4, 1, 3, 5, 2, 1, 4, 2, 1, 3, 2, 5, 1, 2, 3, 1, 4, 2, 1, 3, 5, 1, 2, 4, 1, 3, 2];
+
+const EntranceTicket = ({ t, leaving }: { t: any; leaving: boolean }) => (
+  <aside className="relative hidden w-full bg-[radial-gradient(125%_95%_at_40%_-8%,#1b1713_0%,#0e0d0b_52%,#080706_100%)] ring-1 ring-line lg:flex lg:h-[clamp(23rem,58vh,32rem)]">
+    {/* 顶部一道品红细线：全卡唯一的高饱和 */}
+    <span className="absolute inset-x-0 top-0 h-[2px] bg-accent/70" aria-hidden />
+
+    {/* 四角裁切标记 */}
+    <span className="pointer-events-none absolute left-3 top-3 h-3.5 w-3.5 border-l border-t border-bone/20" aria-hidden />
+    <span className="pointer-events-none absolute bottom-3 left-3 h-3.5 w-3.5 border-b border-l border-bone/20" aria-hidden />
+    <span className="pointer-events-none absolute bottom-3 right-3 h-3.5 w-3.5 border-b border-r border-bone/20" aria-hidden />
+    <span className="pointer-events-none absolute right-3 top-3 h-3.5 w-3.5 border-r border-t border-bone/20" aria-hidden />
+
+    {/* 主券：进场时向左轻移、淡出 */}
+    <motion.div
+      animate={leaving ? { x: -16, opacity: 0 } : { x: 0, opacity: 1 }}
+      transition={{ duration: 0.36, ease: [0.32, 0, 0.67, 0] }}
+      className="relative flex flex-1 flex-col px-8 py-7"
+    >
+      <div className="flex items-start justify-between">
+        <p className="label text-dim/60">ADMISSION</p>
+        <p className="label tabular-nums text-dim/30">№ 0001</p>
+      </div>
+
+      <div className="flex flex-1 flex-col justify-center pr-3">
+        <p className="flex items-start font-display leading-[0.78] tracking-tight">
+          <span className="text-[7rem]">18</span>
+          <span className="ml-1.5 mt-2 text-[2.25rem] leading-none text-accent">+</span>
+        </p>
+        <p className="mt-5 label text-dim/50">{t.ageGate.poster.mark}</p>
+      </div>
+
+      {/* 票面下方的小字条款，压在票脚上——中段才不会空出一大片 */}
+      <div className="pr-3">
+        <div className="h-px w-full bg-bone/10" />
+        <p className="mt-4 max-w-[14rem] text-[12px] leading-relaxed text-dim/65">{t.ageGate.subtitle}</p>
+      </div>
+
+      {/* 贴着撕口的竖排印刷标记 */}
+      <p className="absolute right-2.5 top-1/2 hidden -translate-y-1/2 label text-dim/20 xl:block [writing-mode:vertical-rl]">
+        {t.ageGate.poster.vertical}
+      </p>
+    </motion.div>
+
+    {/* 撕口 + 票根：进场时绕左上角甩开——真正「撕票入场」 */}
+    <motion.div
+      animate={leaving ? { x: 34, y: 16, rotate: 3.2, opacity: 0 } : { x: 0, y: 0, rotate: 0, opacity: 1 }}
+      transition={{ duration: 0.34, ease: [0.34, 0, 0.64, 1] }}
+      className="flex w-[37%] shrink-0 origin-top-left flex-col border-l border-dashed border-bone/15 bg-canvas/60 px-6 py-7"
+    >
+      <div className="divide-y divide-line/40">
+        {t.ageGate.meta.map((item: { k: string; v: string }) => (
+          <div key={item.k} className="flex items-center justify-between py-3">
+            <span className="label text-dim/40">{item.k}</span>
+            <span className="label tabular-nums text-bone/75">{item.v}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 竖排条码：票根下半截靠它压住，不写死像素，只调疏密 */}
+      <div className="mt-5 flex flex-1 items-stretch gap-4 border-t border-line/40 pt-5">
+        <div className="flex w-16 flex-col gap-[2px]" aria-hidden>
+          {TICKET_BARS.map((w, i) => (
+            <span key={i} className="bg-bone/15" style={{ flexGrow: w, flexBasis: 0 }} />
+          ))}
+        </div>
+        <p className="label text-dim/25 [writing-mode:vertical-rl]">GR-2026</p>
+      </div>
+    </motion.div>
+  </aside>
+);
+
+const AgeGate = ({
+  onAccept,
+  lang,
+  onLangChange,
+  t
+}: {
+  onAccept: () => void;
+  lang: Language;
+  onLangChange: (lang: Language) => void;
+  t: any;
+}) => {
   const [closed, setClosed] = useState(false);
+  // 进场是一小段编排：票根先被撕下（≈400ms），再交棒给 App 让遮罩对焦。
+  // 所以这里不直接调 onAccept，而是先置 leaving、延时交接；用 ref 挡住连点。
+  const [leaving, setLeaving] = useState(false);
+  const leavingRef = useRef(false);
+
+  const accept = useCallback(() => {
+    if (leavingRef.current) return;
+    leavingRef.current = true;
+    setLeaving(true);
+    window.setTimeout(onAccept, 400);
+  }, [onAccept]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') onAccept();
+      // 「已退出」那一屏按 Enter 不该再把人放进去
+      if (e.key === 'Enter' && !closed) accept();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onAccept]);
+  }, [accept, closed]);
 
   if (closed) {
     return (
@@ -354,7 +473,7 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-canvas px-6 text-center"
+        className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-canvas/80 px-6 text-center backdrop-blur-sm"
       >
         <Lock className="h-5 w-5 text-dim/30" strokeWidth={1.25} />
         <p className="mt-6 label text-dim/60">{t.ageGate.closed}</p>
@@ -373,12 +492,18 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] overflow-y-auto bg-canvas"
+      exit={{ opacity: 0, transition: { duration: 0.32, ease: 'easeIn' } }}
+      className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain"
     >
-      <div className="mx-auto flex min-h-full w-full max-w-[1680px] flex-col px-6 py-7 md:px-10 md:py-9 lg:px-16">
+      {/* 文案层：撕票的同时先退场，避免票撕完了字还在。
+          注意这一层只包文字——包住入场券的话，票还在撕就已经被一起淡掉了。 */}
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[1680px] flex-col px-6 py-7 md:px-10 md:py-9 lg:px-16">
         {/* 顶部：品牌 + 年份 */}
-        <div className="flex items-center justify-between">
+        <motion.div
+          animate={{ opacity: leaving ? 0 : 1, y: leaving ? -10 : 0 }}
+          transition={{ duration: 0.28, ease: 'easeIn' }}
+          className="flex items-center justify-between"
+        >
           <div className="flex items-center gap-3">
             <img
               src={LOGO_URL}
@@ -388,12 +513,24 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
             />
             <span className="label text-dim">{t.header.logo}</span>
           </div>
-          <Eyebrow className="text-dim/50">EST. 2026</Eyebrow>
-        </div>
+          <div className="flex items-center gap-4">
+            <Eyebrow className="hidden text-dim/50 sm:block">EST. 2026</Eyebrow>
+            <button
+              onClick={() => onLangChange(lang === 'zh' ? 'en' : 'zh')}
+              className="border border-line px-3 py-1.5 label text-dim transition-colors hover:border-bone/30 hover:text-bone"
+            >
+              {lang === 'zh' ? 'EN' : '中文'}
+            </button>
+          </div>
+        </motion.div>
 
         {/* 主体 */}
         <div className="grid flex-1 items-center gap-12 py-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20 lg:py-6">
-          <div className="max-w-xl">
+          <motion.div
+            animate={{ opacity: leaving ? 0 : 1, y: leaving ? -10 : 0 }}
+            transition={{ duration: 0.28, ease: 'easeIn' }}
+            className="max-w-xl"
+          >
             <Eyebrow className="text-accent/80">{t.ageGate.kicker}</Eyebrow>
 
             <h2 className="mt-5 font-display text-[clamp(2.8rem,7.5vw,5.75rem)] leading-[0.88] tracking-tight">
@@ -401,6 +538,11 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
             </h2>
 
             <p className="mt-5 max-w-md text-sm leading-relaxed text-dim">{t.ageGate.subtitle}</p>
+
+            <p className="mt-3 flex items-center gap-2.5 text-xs text-bone/75">
+              <span className="h-px w-6 shrink-0 bg-accent" aria-hidden />
+              {t.ageGate.teaser}
+            </p>
 
             <div className="mt-9 flex items-start gap-4 border-t border-line pt-6">
               <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full border border-accent/40 label text-accent">
@@ -410,13 +552,15 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
             </div>
 
             <div className="mt-9 flex flex-wrap items-center gap-x-2 gap-y-4">
-              <button
-                onClick={onAccept}
+              <motion.button
+                onClick={accept}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.12 }}
                 className="group flex items-center justify-center gap-3 bg-bone px-10 py-4 label text-canvas transition-colors hover:bg-white"
               >
                 {t.ageGate.enter}
                 <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </button>
+              </motion.button>
               <button
                 onClick={() => setClosed(true)}
                 className="px-6 py-4 label text-dim transition-colors hover:text-bone"
@@ -435,48 +579,20 @@ const AgeGate = ({ onAccept, t }: { onAccept: () => void; t: any }) => {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          {/* 右侧展签海报 */}
-          <div className="relative hidden aspect-[4/5] max-h-[62vh] w-full overflow-hidden border border-line lg:block">
-            <div className="absolute inset-0 bg-[radial-gradient(120%_100%_at_50%_2%,#1c1714_0%,#0a0908_58%)]" />
-
-            {/* 光圈 */}
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 120, repeat: Infinity, ease: 'linear' }}
-              className="absolute left-1/2 top-[42%] h-[66%] w-[66%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-bone/[0.14]"
-            />
-            <div className="absolute left-1/2 top-[42%] h-[52%] w-[52%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-bone/[0.09]" />
-            <div className="absolute left-1/2 top-[42%] h-[37%] w-[37%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-bone/[0.06]" />
-
-            <div className="absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 text-center">
-              <p className="font-display text-[4.5rem] leading-none tracking-tight">
-                18<span className="text-accent">+</span>
-              </p>
-              <p className="mt-3 label text-dim/50">{t.ageGate.poster.mark}</p>
-            </div>
-
-            <p className="absolute right-5 top-6 label text-dim/40 [writing-mode:vertical-rl]">
-              {t.ageGate.poster.vertical}
-            </p>
-
-            {/* 底部元数据 */}
-            <div className="absolute inset-x-0 bottom-0 divide-y divide-line/50 border-t border-line/60 bg-canvas/40">
-              {t.ageGate.meta.map((item: { k: string; v: string }) => (
-                <div key={item.k} className="flex items-center justify-between px-5 py-3">
-                  <span className="label text-dim/40">{item.k}</span>
-                  <span className="label text-bone/70 tabular-nums">{item.v}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* 右栏：入场券。票根的语言（裁切标记 / 票头 / 票面 / 撕口 / 条码）取代原先的同心圆光圈 */}
+          <EntranceTicket t={t} leaving={leaving} />
         </div>
 
-        <div className="flex items-center justify-between border-t border-line/50 py-4">
+        <motion.div
+          animate={{ opacity: leaving ? 0 : 1, y: leaving ? 10 : 0 }}
+          transition={{ duration: 0.28, ease: 'easeIn' }}
+          className="flex items-center justify-between border-t border-line/50 py-4"
+        >
           <Eyebrow className="text-dim/40">{t.ageGate.footer}</Eyebrow>
           <Eyebrow className="text-dim/25">GIRLSRATING.COM</Eyebrow>
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );
@@ -932,7 +1048,7 @@ const Header = ({
       className="sticky top-0 z-50 border-b border-line/70 bg-canvas/85 backdrop-blur-xl"
     >
       <div className="mx-auto flex h-16 max-w-[1680px] items-center justify-between gap-6 px-5 md:px-10 lg:px-16">
-        <div className="flex items-center gap-7 md:gap-10">
+        <div className="flex min-w-0 items-center gap-7 md:gap-10">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
             className="flex shrink-0 items-center gap-3"
@@ -949,7 +1065,8 @@ const Header = ({
             </span>
           </button>
 
-          <nav className="flex items-center gap-5 md:gap-8">
+          {/* 窄屏放不下时横向滚动而不是逐字折行；py-1 是给选中态那根 -bottom-px 下划线留出不被裁掉的余量 */}
+          <nav className="no-scrollbar flex min-w-0 items-center gap-5 overflow-x-auto py-1 md:gap-8">
             {[
               { key: 'hot', label: t.categories.hot, onClick: () => onCategoryChange('hot'), active: activeCategory === 'hot', cls: '' },
               { key: 'latest', label: t.categories.latest, onClick: () => onCategoryChange('latest'), active: activeCategory === 'latest', cls: '' },
@@ -963,7 +1080,8 @@ const Header = ({
               <button
                 key={item.key}
                 onClick={item.onClick}
-                className={`relative py-1.5 label transition-colors ${
+                aria-current={item.active ? 'true' : undefined}
+                className={`relative shrink-0 whitespace-nowrap py-1.5 label transition-colors ${
                   item.active ? 'text-bone' : 'text-dim hover:text-bone'
                 } ${item.cls}`}
               >
@@ -982,7 +1100,7 @@ const Header = ({
 
         <button
           onClick={() => onLangChange(lang === 'zh' ? 'en' : 'zh')}
-          className="border border-line px-3 py-1.5 label text-dim transition-colors hover:border-bone/30 hover:text-bone"
+          className="shrink-0 border border-line px-3 py-1.5 label text-dim transition-colors hover:border-bone/30 hover:text-bone"
         >
           {lang === 'zh' ? 'EN' : '中文'}
         </button>
@@ -3355,7 +3473,7 @@ const GachaPage = ({
       <div className="grain-overlay" aria-hidden />
 
       {/* 顶栏：返回 + 视图切换 + 关闭 */}
-      <div className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/70 bg-canvas/90 px-5 backdrop-blur-xl md:px-10">
+      <div className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-line/70 bg-canvas/90 px-5 backdrop-blur-xl md:px-10 lg:px-16">
         <button
           onClick={onClose}
           className="group flex items-center gap-2.5 label text-dim transition-colors hover:text-bone"
@@ -3556,6 +3674,19 @@ export default function App() {
   const [isGachaPromoOpen, setIsGachaPromoOpen] = useState(false);
   const [gachaAutoDraw, setGachaAutoDraw] = useState(false);
   const [gachaStatus, setGachaStatus] = useState<GachaStatusResult | null>(null);
+  // 入口遮罩的三段状态：in（还糊着）→ opening（开始对焦，CSS 过渡）→ gone（动画走完再卸载）
+  const [gateVeil, setGateVeil] = useState<'in' | 'opening' | 'gone'>('in');
+
+  useEffect(() => {
+    if (!isAged) {
+      setGateVeil('in');
+      return;
+    }
+    setGateVeil('opening');
+    // 860ms 的 --gate-blur 过渡 + 余量，之后再摘掉这层，避免一直挂着一个全屏 backdrop-filter
+    const id = window.setTimeout(() => setGateVeil('gone'), 1300);
+    return () => window.clearTimeout(id);
+  }, [isAged]);
 
   const t = translations[lang];
   const columns = useColumnCount();
@@ -3615,9 +3746,10 @@ export default function App() {
           /* ignore */
         }
         if (!data.drawnToday && last !== data.date) {
+          // 2600ms：进场那套「撕票 → 对焦 → 推门」约 1.3s，弹窗不能盖在它上面
           window.setTimeout(() => {
             if (!cancelled) setIsGachaPromoOpen(true);
-          }, 1200);
+          }, 2600);
         }
       } catch {
         /* silent */
@@ -3678,7 +3810,10 @@ export default function App() {
           setPage(1);
         }
       } else if (!append) {
+        // 与文档约定一致：非 200 时清空列表、页码归 0
         setImages([]);
+        setTotalPages(0);
+        setPage(0);
       }
     } catch (error) {
       console.error('Failed to fetch images:', error);
@@ -3838,7 +3973,20 @@ export default function App() {
     <div className="min-h-screen bg-canvas font-sans">
       <div className="grain-overlay" aria-hidden />
 
-      <AnimatePresence>{!isAged && <AgeGate onAccept={() => setIsAged(true)} t={t} />}</AnimatePresence>
+      {/* 遮罩不交给 AnimatePresence：它要靠 CSS 变量把模糊半径拉回 0，卸载时机得自己掌握 */}
+      {gateVeil !== 'gone' && <AgeGateBackdrop opening={gateVeil === 'opening'} />}
+
+      <AnimatePresence>
+        {!isAged && (
+          <AgeGate
+            key="age-gate"
+            onAccept={() => setIsAged(true)}
+            lang={lang}
+            onLangChange={setLang}
+            t={t}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>{isQAOpen && <QAModal onClose={() => setIsQAOpen(false)} t={t} />}</AnimatePresence>
 
@@ -3877,7 +4025,12 @@ export default function App() {
 
           <SideRail onTop={scrollTop} onRefresh={refresh} isLoading={isLoading} t={t} />
 
-          <main>
+          {/* 进门时整块内容从 1.03 推回 1 —— 和遮罩的「对焦」叠在一起，才有「走进去」的位移感 */}
+          <main
+            className={`origin-center transition-transform duration-[1100ms] ease-out motion-reduce:transition-none ${
+              isAged ? 'scale-100' : 'scale-[1.03]'
+            }`}
+          >
             {/* 给读屏软件与爬虫准备的正文摘要（与关于页同源，不是隐藏关键词） */}
             <section className="sr-only">
               <h1>
@@ -3896,7 +4049,7 @@ export default function App() {
               count={images.length}
               page={page}
               totalPages={totalPages}
-              onRefresh={() => load('hot', 1, false)}
+              onRefresh={refresh}
               isLoading={isLoading}
               gachaLabel={gachaStatus?.drawnToday ? t.gacha.entryDone : t.gacha.entry}
               onOpenGacha={() => openGacha(false)}

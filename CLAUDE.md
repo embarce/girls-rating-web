@@ -64,6 +64,7 @@ GET /api/random  → { code: 200, data: CosplayImage[] }
 // 最新：分页（author_id 可选，作者专区按作者过滤）
 GET /api/cosplay?page=1&pageSize=10&author_id=
                  → { code: 200, data: { list: CosplayImage[], totalPage: number, currPage: number } }
+// 入口页背景不再单独取图：直接用年龄门后面已挂载的画廊做模糊（`/api/latest` 前端已不再调用）
 // 抽卡（docs/gacha-design.md，匿名 X-Device-Id 请求头）
 POST /api/gacha/draw        → { code: 200, data: { date, replayed, cards, stats } }  // 幂等补发，无 409
 GET  /api/gacha/status      → { code: 200, data: { date, drawnToday, cards, probabilities, stats, pool } }
@@ -106,8 +107,12 @@ interface GachaCardData {
 - **`hot` 分类下没有分页**：`totalPage` 被强制设为 1，`Masthead` 的「换一批」与「加载更多」都只在对应分类出现。
 - **`latest` 是「加载更多」追加模式**，不是翻页：`load(cat, page, append)` 第三参数决定 `setImages` 是替换还是追加；`page/totalPages` 用于判断 `canLoadMore`。改成替换式会让已加载内容消失。
 - **瀑布流是 JS 分列**（`columnize`）：按「最短列优先」把图分进 N 个 flex 列，列的图片高度用 `height/width` 估算。该贪心算法**前缀稳定**，追加新图时已有图片不会跳列——换成 `index % columns` 之类的分配方式就会在加载更多时整体重排。
-- **年龄门不持久化**：`isAged` 只存在内存，刷新即重新验证。`AgeGate` 内含三种形态：正文（桌面端右侧是光圈海报，移动端把 `ageGate.meta` 压成一条信息带）、按 `Enter` 直接进入、点「退出」后的 `closed` 空状态（只保留重新进入）。
-- **首屏整页被 `AgeGate` 覆盖**，`<Header>`/`<main>`/`<footer>` 在 `isAged` 为真后才挂载。
+- **年龄门不持久化**：`isAged` 只存在内存，刷新即重新验证。`AgeGate` 内含三种形态：正文（桌面端右侧是 `EntranceTicket` 入场券——主券 + 竖向虚线撕口 + 票根，票根里放 `ageGate.meta` 三行与竖排条码；移动端把 `ageGate.meta` 压成一条信息带）、按 `Enter` 直接进入（`closed` 态下按 `Enter` 无效）、点「退出」后的 `closed` 空状态（只保留重新进入）。
+- **入场券按「横版」设计**：右栏实测约 1.18:1（`lg:h-[clamp(23rem,58vh,32rem)]`，宽度由 `grid-cols-[1.1fr_0.9fr]` 决定），所以是左右分栏而不是上下堆叠；改成竖版比例要同时重排主券内部。条码是 `TICKET_BARS` 的 `flexGrow` 疏密，别写成固定像素。
+- **入口页背景 = 模糊后的主页**：不另铺图墙，`AgeGateBackdrop`（`z-[99]`）对下面已经挂载好的画廊做 34px `backdrop-filter` + 左侧斜向渐隐、四角压深两层 scrim，可读但不可用。
+- **进场是三拍编排**（改之前先读这段）：① `AgeGate` 点「进入」不直接调 `onAccept`，先置 `leaving` 让票根撕开、文案淡出，400ms 后才交接；② App 的 `gateVeil` 由 `in → opening → gone` 三态驱动遮罩，`opening` 时 `.gate-veil[data-open]` 把 `--gate-blur` 从 34px 过渡到 0（820ms ease-in-out，`@property` 注册才能插值），scrim 晚 140ms 再退；③ `<main>` 同时从 `scale-[1.03]` 回到 `scale-100`（1100ms）。所以入场总时长约 1.3s，抽卡弹窗延到 2600ms 才弹。
+- **`backdrop-filter` 必须挂在带透明度/模糊过渡的那个元素本身**，不能挂子元素：父级 opacity < 1 会新建 backdrop root，模糊会在第一帧整个消失。同理不要给 `.gate-veil` 加进场 opacity 动画（会有一瞬间露出未模糊的画面）。
+- **首屏内容已挂载，`AgeGate` 只是覆盖层**（见下方 SEO 一节），`entrance-bg` 那套固定网格图墙已废弃，不要再引入 `/api/latest` 专门给入口供图。
 - **"让图片动起来"按钮是模拟的**：`Lightbox.handleMakeMove` 里是 `setTimeout 3000ms` + 撒花 + 5 秒后复位，没有真实 AI 调用。`GEMINI_API_KEY` 虽被 `vite.config.ts` 注入到 `process.env`，但 `src/` 中未被使用。
 
 ## i18n
@@ -140,7 +145,7 @@ interface GachaCardData {
 
 // 普通弹窗一律用 ModalShell + ModalHeader（遮罩 onClick=onClose，内容 stopPropagation）
 // 层级：SideRail z-40，Lightbox z-[60]，沉浸模式 z-[75]，AboutPage / 收藏夹 / 作者专区 z-[70]（Lightbox 之上靠 blocked 属性抑制下层 Esc），
-// GachaPage z-[80]（把玩态 z-[95]），AgeGate z-[100]，普通弹窗 z-[110]，toast z-[120]
+// GachaPage z-[80]（把玩态 z-[95]），AgeGateBackdrop z-[99]，AgeGate z-[100]，普通弹窗 z-[110]，toast z-[120]
 ```
 
 `Lightbox` 额外注册了全局 `keydown`：`ArrowLeft`/`ArrowRight` 切换（首尾循环）、`Escape` 先退出放大再关闭；打开时锁 `body` 滚动，并预加载相邻两张；移动端用 `drag="x"` 滑动切图（阈值 ±70px）。切换方向由 `App` 的 `direction` state 传入，`AnimatePresence` 的 variants 据此做左右滑入。
@@ -164,7 +169,7 @@ interface GachaCardData {
 
 ## SEO / 统计
 
-**核心前提：内容始终挂载。** 年龄门只是 `z-[100]` 的覆盖层，`Header / main / footer` 不再受 `isAged` 控制。这是爬虫（以及不执行 JS 的抓取器）能拿到图库 DOM 的关键——不要改回 `{isAged && ...}`。未通过时给容器加 `inert` + `aria-hidden`，并锁 `body` 滚动；覆盖层不透明，视觉上不会泄露内容。
+**核心前提：内容始终挂载。** 年龄门只是 `z-[100]` 的覆盖层，`Header / main / footer` 不再受 `isAged` 控制。这是爬虫（以及不执行 JS 的抓取器）能拿到图库 DOM 的关键——不要改回 `{isAged && ...}`。未通过时给容器加 `inert` + `aria-hidden`，并锁 `body` 滚动。覆盖层本身半透明，靠 `AgeGateBackdrop`（`z-[99]`，34px 高斯模糊 + scrim）把底下的画廊糊成一片，可读但不可用；模糊强度与 scrim 透明度调低到「能认出有内容」的程度就够了，别再继续调亮。
 
 - **head**：`index.html` 是唯一配置处。`robots` 只有一条（`index, follow, max-image-preview:large, max-snippet:-1`），`googlebot` 单独一条；canonical / `og:url` 固定 `https://girls-rating.com/`。
 - **JSON-LD**：单个 `@graph` 串起 WebSite / Organization / WebPage / ImageGallery。`App.tsx` 里原来那段重复的 `ImageGallery` 已删除，**不要再往组件里塞第二段**。

@@ -239,6 +239,37 @@ body {
   animation: heart-burst 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* 入口遮罩的「对焦」：@property 把 --gate-blur 注册成可插值的长度，
+   这样 backdrop-filter 的模糊半径才能真正从 34px 过渡到 0（Chrome / Safari 16.4+ / FF 128+）。
+   不支持的浏览器不会报错，只是从 34px 直接跳到 0，等于瞬间清晰。
+   注意：不要给 .gate-veil 加 opacity 动画——父级 opacity < 1 会新建 backdrop root，模糊会整个消失。 */
+@property --gate-blur {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 34px;
+}
+
+.gate-veil {
+  --gate-blur: 34px;
+  -webkit-backdrop-filter: blur(var(--gate-blur)) saturate(1.15);
+  backdrop-filter: blur(var(--gate-blur)) saturate(1.15);
+  /* ease-in-out：前 1/3 还糊着、中段才快速收敛——这是「拉焦」，ease-out 会读成一键变清楚 */
+  transition: --gate-blur 820ms cubic-bezier(0.42, 0, 0.58, 1);
+}
+
+.gate-veil[data-open='true'] {
+  --gate-blur: 0px;
+}
+
+/* 遮罩本身（压暗 + 渐隐）：比模糊晚一点起跑，观感是「先对焦、再亮起来」 */
+.gate-scrim {
+  transition: opacity 620ms ease-out 140ms;
+}
+
+.gate-veil[data-open='true'] .gate-scrim {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .skeleton::after,
@@ -247,5 +278,10 @@ body {
   .gacha-idle,
   .immersive-burst {
     animation: none;
+  }
+
+  .gate-veil,
+  .gate-scrim {
+    transition: none;
   }
 }

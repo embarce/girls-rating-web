@@ -13,6 +13,7 @@ npm run dev       # 开发服务器，固定 3000 端口，监听 0.0.0.0
 npm run build     # 生产构建 → dist/
 npm run lint      # 仅 tsc --noEmit 类型检查（无 ESLint / Prettier / 测试）
 npm run clean     # 删除 dist/
+node scripts/mock-server.mjs  # 本地 mock 后端（监听 8080，覆盖画廊/抽卡/反馈接口，图片走 public/images）
 ```
 
 - 依赖改动必须同时更新 `pnpm-lock.yaml`（`pnpm install --lockfile-only`），否则 Docker `--frozen-lockfile` 失败；`package-lock.json` 也同步更新，两条安装路径不能分叉。
@@ -49,7 +50,7 @@ React 19.3 · TypeScript 7 · Vite 8（Rolldown）· Tailwind CSS v4（无 `tail
 - `.label` 是统一展签样式（10px / 0.26em / 全大写），不要临时改字号字距。
 - 圆角一律直角或极小圆角 + `ring-1 ring-line`，**不要**引入 `rounded-xl` / `rounded-full` 卡片。
 - 常用工具类：`.no-scrollbar`、`.skeleton`、`.reveal`、`.grain-overlay`。
-- 层级：SideRail z-40 → Lightbox z-[60] → AboutPage/收藏夹/作者专区 z-[70] → 沉浸模式 z-[75] → GachaPage z-[80]（把玩态 z-[95]）→ AgeGate z-[100] → 普通弹窗 z-[110] → toast z-[120]。
+- 层级：SideRail z-40 → Lightbox z-[60] → AboutPage/收藏夹/作者专区 z-[70] → 沉浸模式 z-[75] → GachaPage z-[80]（把玩态 z-[95]）→ 年龄门模糊背景 z-[99] → AgeGate z-[100] → 普通弹窗 z-[110] → toast z-[120]。
 - 普通弹窗一律 `ModalShell` + `ModalHeader`；`SideRail` 的 `lg:right-2` 与页面容器右留白 `lg:px-16` 绑定，改 padding 会让工具栏压住图片。
 
 ## SEO / 其他
